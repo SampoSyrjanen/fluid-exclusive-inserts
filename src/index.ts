@@ -110,6 +110,41 @@ async function orchestrateTest(config: TestConfig) {
     Object.entries(workerResults).forEach(([id, result]) => {
         console.log(`Worker ${id}: ${JSON.stringify(result, null, 2)}`);
     });
+
+    const sequence = container.initialObjects?.sequence as SharedString;
+
+    const finalValues = (() => {
+        const values: string[] = [];
+        for (let i = 0; i < sequence.getLength(); ++i) {
+            values.push(getSequenceContent(sequence, i));
+        }
+        return values;
+    })();
+
+    const checkEventValueSequence = (eventValues: string[]) => {
+        if (eventValues.length === 0) {
+            return true;
+        }
+        let i = finalValues.indexOf(eventValues[0]);
+        for (let j = 0; j < eventValues.length; ++i, ++j) {
+            if (eventValues[j] !== finalValues[i]) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    console.log("final sequence values");
+    console.log(finalValues);
+    Object.entries(workerResults).forEach(([id, result]) => {
+        const eventValues = result.events.map(e => e.value);
+        if (!checkEventValueSequence(eventValues)) {
+            console.log(`worker ${result.workerId} event sequence order differs from final sequence`);
+            console.log(eventValues);
+
+        }
+    });
+
     container.dispose();
 }
 
