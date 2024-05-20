@@ -1,0 +1,26 @@
+{
+  "name": "ordering",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "run-s build:*",
+    "build:1": "npx tsc",
+    "build:2": "npx esbuild --bundle --sourcemap --platform=node --outfile=bundle-node.js dist/index.js",
+    "start:server": "npx --yes @fluidframework/azure-local-service@latest",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fluidframework/azure-client": "^1.2.0",
+    "@fluidframework/sequence": "^1.4.0",
+    "@fluidframework/test-client-utils": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.1",
+    "esbuild": "^0.19.5",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.2.2"
+  }
+}
