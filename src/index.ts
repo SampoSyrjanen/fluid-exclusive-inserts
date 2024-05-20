@@ -74,6 +74,15 @@ const containerSchema = {
     },
 };
 
+function getSequenceContent(sequence: SharedString, index: number) {
+    return sequence.getPropertiesAtPosition(index)["my_sequence_content"];
+}
+
+function sequenceInsert(sequence: SharedString, value: string) {
+    const index = sequence.getLength();
+    sequence.insertText(index, "x", { "my_sequence_content": value });
+}
+
 async function orchestrateTest(config: TestConfig) {
     const client = createFluidClient();
     const { container, services } = await client.createContainer(containerSchema);
@@ -114,10 +123,6 @@ async function testWorker() {
     const pendingSequenceItems = container.initialObjects?.pendingSequenceItems as SharedMap;
     const taskManager = container.initialObjects?.taskManager as TaskManager;
 
-    const sequenceInsert = (value: string) => {
-        sequence.insertText(0, "x", { "my_seq_content": value });
-    };
-
     await waitForPredicate(() => container.connectionState === 2);
 
     const events: SequenceEventData[] = [];
@@ -130,7 +135,7 @@ async function testWorker() {
             const r = event.ranges[0];
             const index = r.position;
             const sequenceLength = target.getLength();
-            const value = target.getPropertiesAtPosition(index)["my_seq_content"];
+            const value = getSequenceContent(sequence, index);
             events.push({ index, sequenceLength, value });
         }
     });
@@ -142,7 +147,7 @@ async function testWorker() {
             for (const key of pendingSequenceItems.keys()) {
                 if (pendingSequenceItems.get(key) === "pending") {
                     pendingSequenceItems.set(key, "inserted");
-                    sequenceInsert(key);
+                    sequenceInsert(sequence, key);
                 }
             }
         };
@@ -178,7 +183,7 @@ async function testWorker() {
         if (config.exclusiveInserts) {
             pendingSequenceItems.set(value, "pending");
         } else {
-            sequenceInsert(value);
+            sequenceInsert(sequence, value);
         }
         await sleep(5);
     }
