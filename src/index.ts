@@ -238,7 +238,7 @@ async function run() {
     const testConfig: TestConfig = {
         numWorkers: 10,
         numOps: 10,
-        exclusiveInserts: true,
+        exclusiveInserts: process.argv[2]  === "no" ? false : true,
     };
     if (cluster.isPrimary) {
         await orchestrateTest(testConfig);
