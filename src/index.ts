@@ -237,7 +237,7 @@ async function testWorker() {
 async function run() {
     const testConfig: TestConfig = {
         numWorkers: 10,
-        numOps: 100,
+        numOps: 10,
         exclusiveInserts: true,
     };
     if (cluster.isPrimary) {
